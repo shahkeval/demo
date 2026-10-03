@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sapta Kshetra Khata – Sangh Income &amp; Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Vadodara:wght@400;500;600;700&family=Noto+Serif+Gujarati:wght@600;700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F2EE; --surface:#FFFFFF; --surface2:#F7F8F5; --ink:#1C2338; --muted:#5E6577; --line:#D9DBD3;
+  --accent:#7A1F2B; --accent-ink:#FFFFFF; --pos:#2F6B44; --neg:#A3322A; --warn-bg:#FFF4D6; --warn-ink:#5B4300;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13172A; --surface:#1C2138; --surface2:#222844; --ink:#ECEEF5; --muted:#9AA1B8; --line:#2E3550;
+    --accent:#E7A3AB; --accent-ink:#2A0A10; --pos:#7CC596; --neg:#F0948B; --warn-bg:#3A2F10; --warn-ink:#F3DFA0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13172A; --surface:#1C2138; --surface2:#222844; --ink:#ECEEF5; --muted:#9AA1B8; --line:#2E3550;
+  --accent:#E7A3AB; --accent-ink:#2A0A10; --pos:#7CC596; --neg:#F0948B; --warn-bg:#3A2F10; --warn-ink:#F3DFA0;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hind Vadodara','Noto Sans Gujarati',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 64px}
+h1,h2,h3{font-family:'Noto Serif Gujarati','Noto Serif',Georgia,serif;margin:0;line-height:1.25}
+h1{font-size:1.7rem}
+h2{font-size:1.25rem;margin-bottom:12px}
+h3{font-size:1.02rem}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.title-block .sub{margin-top:2px}
+.sangh-input{font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px dashed var(--line);padding:2px 0;min-width:240px;max-width:100%}
+.sangh-input:focus{outline:2px solid var(--accent);outline-offset:3px;border-bottom-color:transparent}
+.head-ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.86rem;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px;width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+textarea{min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;min-height:42px}
+button:hover{background:var(--surface2)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.primary:hover{filter:brightness(1.08)}
+button.danger{color:var(--neg);border-color:var(--neg)}
+button.sm{min-height:34px;padding:5px 10px;font-size:.84rem}
+
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:20px;-webkit-overflow-scrolling:touch}
+nav.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:10px 14px;white-space:nowrap;color:var(--muted);font-weight:500}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel+.panel{margin-top:16px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+/* Hero: seven-part band */
+.band{display:flex;height:46px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface2)}
+.band .seg{height:100%;min-width:2px;transition:flex-grow .4s}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-size:.86rem}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.hero-total{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;margin-bottom:14px}
+.hero-total .big{font-family:'Noto Serif',Georgia,serif;font-size:2rem;font-weight:700}
+
+/* Kshetra cards */
+.kcard{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--kc);border-radius:10px;padding:14px 14px 12px}
+.kcard .kt{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.kcard .gu{font-family:'Noto Serif Gujarati',serif;font-size:.95rem;color:var(--muted)}
+.chip{display:inline-block;font-size:.74rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.kcard dl{margin:10px 0 0;display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:.88rem}
+.kcard dt{color:var(--muted)}
+.kcard dd{margin:0;text-align:right}
+.kcard .bal{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-weight:700}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+.bar2{height:6px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar2>i{display:block;height:100%;background:var(--kc)}
+
+.note{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.9rem}
+.warn{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-ink);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:.92rem}
+.warn .row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.err{color:var(--neg);font-size:.88rem;margin-top:8px;min-height:1.2em}
+
+/* Segmented toggle */
+.seg-toggle{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg-toggle button{border:0;border-radius:0;min-width:110px}
+.seg-toggle button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+
+/* Tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface)}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface2);font-weight:600;white-space:nowrap}
+td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:700;background:var(--surface2)}
+.tag{display:inline-flex;align-items:center;gap:6px}
+
+.filters{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+.pct-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.pct-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-left:6px solid var(--kc);border-radius:8px;padding:6px 8px;background:var(--surface)}
+.pct-row span.n{flex:1;font-size:.9rem}
+.pct-row input{width:84px;text-align:right}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw}
+.toast.show{opacity:1}
+.hide{display:none!important}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);max-width:640px;width:calc(100% - 32px);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media print{nav.tabs,.head-ctl,button{display:none!important} .wrap{padding:0} body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title-block">
+      <h1>સપ્ત ક્ષેત્ર ખાતું · Sapta Kshetra Khata</h1>
+      <div class="sub muted small">Sangh income and expense tracker, kept by the seven kshetras</div>
+      <div style="margin-top:8px"><input id="sanghName" class="sangh-input" placeholder="Enter Sangh / Trust name" aria-label="Sangh or Trust name"></div>
+    </div>
+    <div class="head-ctl">
+      <label class="f">Financial year (Apr–Mar)
+        <select id="fySel"></select>
+      </label>
+    </div>
+  </header>
+
+  <div id="storageWarn" class="warn hide">Your browser is blocking local storage, so entries will be lost when you close this page. Use <strong>Reports → Backup</strong> often.</div>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" aria-selected="true" data-tab="overview">Overview</button>
+    <button role="tab" aria-selected="false" data-tab="add">Add entry</button>
+    <button role="tab" aria-selected="false" data-tab="ledger">Ledger</button>
+    <button role="tab" aria-selected="false" data-tab="distribute">Distribute Sadharan funds</button>
+    <button role="tab" aria-selected="false" data-tab="reports">Reports &amp; backup</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section id="tab-overview"></section>
+
+  <!-- ADD -->
+  <section id="tab-add" class="hide">
+    <div class="panel">
+      <h2>New entry</h2>
+      <div class="seg-toggle" role="group" aria-label="Entry type">
+        <button id="tInc" aria-pressed="true">Income (Aavak)</button>
+        <button id="tExp" aria-pressed="false">Expense (Javak)</button>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <label class="f">Date<input type="date" id="fDate"></label>
+        <label class="f">Kshetra / Khata<select id="fFund"></select></label>
+        <label class="f">Head (label)<select id="fHead"></select></label>
+        <label class="f">Amount (₹)<input type="number" id="fAmt" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+        <label class="f"><span id="lblParty">Donor name</span><input type="text" id="fParty" placeholder="Name"></label>
+        <label class="f">Payment mode
+          <select id="fMode"><option>Cash</option><option>UPI</option><option>Bank transfer</option><option>Cheque</option><option>Other</option></select>
+        </label>
+        <label class="f">Reference (cheque / UTR / book no.)<input type="text" id="fRef" placeholder="Optional"></label>
+        <label class="f">Narration<input type="text" id="fNote" placeholder="Optional, e.g. Paryushan boli"></label>
+      </div>
+      <div id="fundHint" class="note" style="margin-top:14px"></div>
+      <div id="fWarn" class="warn hide"></div>
+      <div class="err" id="fErr" role="alert"></div>
+      <div class="row" style="margin-top:6px">
+        <button class="primary" id="btnSave">Save income</button>
+        <button id="btnClear">Clear form</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEDGER -->
+  <section id="tab-ledger" class="hide">
+    <div class="panel">
+      <h2>Ledger</h2>
+      <div class="filters">
+        <label class="f">Khata<select id="lFund"></select></label>
+        <label class="f">Type<select id="lType"><option value="">All</option><option value="income">Income</option><option value="expense">Expense</option><option value="transfer">Distribution</option></select></label>
+        <label class="f">Search<input id="lQ" type="search" placeholder="Name, head, narration"></label>
+      </div>
+      <div id="ledgerOut"></div>
+    </div>
+  </section>
+
+  <!-- DISTRIBUTE -->
+  <section id="tab-distribute" class="hide"></section>
+
+  <!-- REPORTS -->
+  <section id="tab-reports" class="hide"></section>
+</div>
+
+<dialog id="dlg">
+  <h3 id="dlgTitle">Copy</h3>
+  <p class="muted small" id="dlgHelp"></p>
+  <textarea id="dlgText" readonly></textarea>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><button id="dlgClose" class="primary">Close</button></div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Data model ---------- */
+var KEY='sapta-kshetra-khata-v1';
+var KSHETRAS=[
+  {id:'pratima', name:'Jin Pratima', gu:'જિન પ્રતિમા', group:'dev',  color:'#C48A10'},
+  {id:'mandir',  name:'Jin Mandir',  gu:'જિન મંદિર',   group:'dev',  color:'#B5432F'},
+  {id:'agam',    name:'Jin Agam',    gu:'જિન આગમ',     group:'gyan', color:'#2F66A3'},
+  {id:'sadhu',   name:'Sadhu',       gu:'સાધુ',         group:'sadh', color:'#6B7385'},
+  {id:'sadhvi',  name:'Sadhvi',      gu:'સાધ્વી',       group:'sadh', color:'#8A4F8C'},
+  {id:'shravak', name:'Shravak',     gu:'શ્રાવક',       group:'sadh', color:'#3F8052'},
+  {id:'shravika',name:'Shravika',    gu:'શ્રાવિકા',     group:'sadh', color:'#23808A'}
+];
+var EXTRA=[
+  {id:'sadharan',name:'Sadharan Khata',gu:'સાધારણ ખાતું',group:'pool',color:'#8C6A3F'},
+  {id:'jeevdaya',name:'Jeevdaya',gu:'જીવદયા',group:'jeev',color:'#7C9A2E'}
+];
+var FUNDS=KSHETRAS.concat(EXTRA);
+var FUND={}; FUNDS.forEach(function(f){FUND[f.id]=f;});
+var GROUPS={dev:'Devdravya',gyan:'Gyandravya',sadh:'Sadharan dravya',pool:'Unallocated pool',jeev:'Jeevdaya'};
+
+var OPEN='Opening balance (brought forward)';
+var HEADS={
+  pratima:{
+    income:[OPEN,'Boli – Snatra / Abhishek','Boli – Pooja / Aarti / Mangal Divo','Bhandar (Pratima)','Pratima Bharavavi donation','Other Devdravya'],
+    expense:['Kesar, Sukhad, Chandan','Dhoop, Deepak, Ghee','Angi / Prakshal material','Pratima Pratishtha / Anjanshalaka','Pratima repair / Lepa','Other Pratima expense']
+  },
+  mandir:{
+    income:[OPEN,'Boli – Dhaja / Kalash / Pratishtha','Bhandar (Mandir)','Jirnoddhar / Construction donation','Mandir pooja boli','Other Devdravya'],
+    expense:['Construction / Jirnoddhar','Pujari / Mehta salary','Electricity, water, cleaning','Repairs & maintenance','Utsav / Mahotsav (Devdravya portion)','Other Mandir expense']
+  },
+  agam:{
+    income:[OPEN,'Gyan Pooja','Gyan Bhandar donation','Granth publication donation','Pathshala (Gyanshala) donation','Other Gyandravya'],
+    expense:['Granth printing / publication','Gyan Bhandar upkeep','Pathshala expenses','Pandit / teacher honorarium','Shrut-bhakti (Agam pooja)','Other Gyan expense']
+  },
+  sadhu:{
+    income:[OPEN,'Vaiyavach donation','Chaturmas donation','Medical vaiyavach donation','Other Sadharan'],
+    expense:['Vaiyavach (needs of Sadhu Bhagwant)','Vihar expenses','Medical vaiyavach','Chaturmas expenses','Upakaran (Oghā, Kamli etc.)','Other Sadhu expense']
+  },
+  sadhvi:{
+    income:[OPEN,'Vaiyavach donation','Chaturmas donation','Medical vaiyavach donation','Other Sadharan'],
+    expense:['Vaiyavach (needs of Sadhviji Bhagwant)','Vihar expenses','Medical vaiyavach','Chaturmas expenses','Upakaran','Other Sadhvi expense']
+  },
+  shravak:{
+    income:[OPEN,'Sadharmik Bhakti donation','Education aid donation','Medical aid donation','Sangh Pooja / Prabhavana','Other Sadharan'],
+    expense:['Sadharmik Vatsalya','Education aid','Medical aid','Sangh Pooja / Prabhavana','Yatra / Sangh arrangements','Other Shravak expense']
+  },
+  shravika:{
+    income:[OPEN,'Sadharmik Bhakti donation','Education aid donation','Medical aid donation','Mahila Mandal contribution','Other Sadharan'],
+    expense:['Sadharmik Vatsalya','Education aid','Medical aid','Mahila Mandal programmes','Ayambil / Tapasya arrangements','Other Shravika expense']
+  },
+  sadharan:{
+    income:[OPEN,'General donation (unrestricted)','Membership / Levy (Lavajam)','Nakaro / Tithi contribution','Bank interest','Other income'],
+    expense:['Staff salary','Electricity & utilities','Rent / property tax','Printing & stationery','Events & programmes (general)','Audit / legal / bank charges','Other general expense']
+  },
+  jeevdaya:{
+    income:[OPEN,'Jeevdaya donation','Panjrapol contribution','Anukampa donation','Other income'],
+    expense:['Panjrapol support','Fodder (Charo)','Animal medical care','Live-saving / Amari programmes','Anukampa (compassion) aid','Other Jeevdaya expense']
+  }
+};
+var FUND_NOTE={
+  dev:'Devdravya is sacred to Jin Pratima and Jin Mandir. Keep it in this khata and spend it only on these two kshetras.',
+  gyan:'Gyandravya belongs to Jin Agam (scriptures and Gyan). Keep it in this khata and spend it only here.',
+  sadh:'Sadharan dravya. Spend on this kshetra; when a khata runs short, top it up from the Sadharan Khata using the Distribute tab.',
+  pool:'Unrestricted funds not yet assigned to a kshetra. The trustees can distribute these to any kshetra from the Distribute tab.',
+  jeev:'Jeevdaya funds for Panjrapol and compassion work. Tracked separately from the seven kshetras.'
+};
+
+var state=load();
+var mode='income';       // add form mode
+var overspendOK=false;   // overspend warning acknowledged
+var storageOK=true;
+
+function blank(){return {sangh:'',entries:[],seq:{R:0,V:0,T:0},fy:'current'};}
+function load(){
+  try{var s=localStorage.getItem(KEY); if(s){var o=JSON.parse(s); if(o&&o.entries) return o;}}catch(e){storageOK=false;}
+  return blank();
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}
+  catch(e){storageOK=false; document.getElementById('storageWarn').classList.remove('hide');}
+}
+
+/* ---------- Helpers ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function rupee(n){n=Number(n)||0;return (n<0?'-':'')+'₹'+Math.abs(n).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function round2(n){return Math.round((Number(n)+Number.EPSILON)*100)/100;}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fyOf(dateStr){var y=+dateStr.slice(0,4),m=+dateStr.slice(5,7);var s=m>=4?y:y-1;return s;}
+function fyLabel(s){return s+'-'+String((s+1)%100).padStart(2,'0');}
+function fyStart(s){return s+'-04-01';}
+function fyEnd(s){return (s+1)+'-03-31';}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function pad(n){return String(n).padStart(4,'0');}
+function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show');},2600);}
+
+function selectedFY(){
+  var v=state.fy;
+  if(v==='all') return 'all';
+  if(v==='current'||v==null) return fyOf(today());
+  return +v;
+}
+
+/* ---------- Balances ---------- */
+// Signed effect on a fund of one entry
+function effects(e){
+  var out=[];
+  if(e.type==='income') out.push({fund:e.fund,kind:'income',amt:e.amount});
+  else if(e.type==='expense') out.push({fund:e.fund,kind:'expense',amt:e.amount});
+  else if(e.type==='transfer'){out.push({fund:e.from,kind:'tout',amt:e.amount});out.push({fund:e.fund,kind:'tin',amt:e.amount});}
+  return out;
+}
+function emptyAcc(){return {open:0,income:0,expense:0,tin:0,tout:0,close:0};}
+function compute(fy){
+  var acc={}; FUNDS.forEach(function(f){acc[f.id]=emptyAcc();});
+  var s=fy==='all'?null:fyStart(fy), en=fy==='all'?null:fyEnd(fy);
+  state.entries.forEach(function(e){
+    effects(e).forEach(function(x){
+      var a=acc[x.fund]; if(!a) return;
+      var sign=(x.kind==='income'||x.kind==='tin')?1:-1;
+      if(en && e.date>en) return;                       // after the year: ignore
+      if(s && e.date<s){a.open+=sign*x.amt; return;}    // before the year: opening
+      a[x.kind]+=x.amt;
+    });
+  });
+  FUNDS.forEach(function(f){var a=acc[f.id];a.close=round2(a.open+a.income-a.expense+a.tin-a.tout);a.open=round2(a.open);});
+  return acc;
+}
+function currentBalance(fundId){ // all entries, any date
+  var b=0; state.entries.forEach(function(e){effects(e).forEach(function(x){
+    if(x.fund===fundId) b+=(x.kind==='income'||x.kind==='tin')?x.amt:-x.amt;});});
+  return round2(b);
+}
+
+/* ---------- Tabs ---------- */
+var currentTab='overview';
+function showTab(t){
+  currentTab=t;
+  ['overview','add','ledger','distribute','reports'].forEach(function(n){$('tab-'+n).classList.toggle('hide',n!==t);});
+  document.querySelectorAll('#tabs button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false');});
+  render();
+}
+$('tabs').addEventListener('click',function(ev){var b=ev.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab);});
+
+/* ---------- FY selector ---------- */
+function buildFY(){
+  var years={}; years[fyOf(today())]=1;
+  state.entries.forEach(function(e){years[fyOf(e.date)]=1;});
+  var list=Object.keys(years).map(Number).sort(function(a,b){return b-a;});
+  var html=list.map(function(y){return '<option value="'+y+'">FY '+fyLabel(y)+'</option>';}).join('')+'<option value="all">All years</option>';
+  $('fySel').innerHTML=html;
+  var sel=selectedFY(); $('fySel').value=String(sel);
+}
+$('fySel').addEventListener('change',function(){state.fy=this.value; save(); render();});
+$('sanghName').addEventListener('input',function(){state.sangh=this.value; save();});
+
+/* ---------- Overview ---------- */
+function kcardHTML(f,a,maxAbs){
+  var bal=a.close, w=maxAbs>0?Math.min(100,Math.abs(bal)/maxAbs*100):0;
+  return '<div class="kcard" style="--kc:'+f.color+'">'+
+    '<div class="kt"><div><h3>'+esc(f.name)+'</h3><div class="gu">'+esc(f.gu)+'</div></div><span class="chip">'+GROUPS[f.group]+'</span></div>'+
+    '<dl class="num">'+
+      '<dt>Opening</dt><dd>'+rupee(a.open)+'</dd>'+
+      '<dt>Income</dt><dd class="pos">'+rupee(a.income)+'</dd>'+
+      (a.tin?'<dt>Distributed in</dt><dd class="pos">'+rupee(a.tin)+'</dd>':'')+
+      '<dt>Expense</dt><dd class="neg">'+rupee(a.expense)+'</dd>'+
+      (a.tout?'<dt>Distributed out</dt><dd class="neg">'+rupee(a.tout)+'</dd>':'')+
+    '</dl>'+
+    '<div class="bar2"><i style="width:'+w+'%"></i></div>'+
+    '<div class="bal num"><span>Balance</span><span class="'+(bal<0?'neg':'')+'">'+rupee(bal)+'</span></div></div>';
+}
+function renderOverview(){
+  var fy=selectedFY(), acc=compute(fy), el=$('tab-overview');
+  var maxAbs=0; FUNDS.forEach(function(f){maxAbs=Math.max(maxAbs,Math.abs(acc[f.id].close));});
+  var tot={open:0,income:0,expense:0,close:0};
+  FUNDS.forEach(function(f){var a=acc[f.id];tot.open+=a.open;tot.income+=a.income;tot.expense+=a.expense;tot.close+=a.close;});
+  var pos=0; FUNDS.forEach(function(f){if(acc[f.id].close>0)pos+=acc[f.id].close;});
+
+  var seg='',leg='';
+  FUNDS.forEach(function(f){
+    var v=Math.max(0,acc[f.id].close); if(v<=0)return;
+    var p=v/pos*100;
+    seg+='<div class="seg" title="'+esc(f.name)+': '+rupee(v)+' ('+p.toFixed(1)+'%)" style="flex-grow:'+v+';background:'+f.color+'"></div>';
+  });
+  FUNDS.forEach(function(f){
+    var v=acc[f.id].close; var p=pos>0&&v>0?(v/pos*100).toFixed(1)+'%':'0%';
+    leg+='<span><i class="dot" style="background:'+f.color+'"></i>'+esc(f.name)+' <span class="muted num">'+p+'</span></span>';
+  });
+
+  // dravya group totals
+  var gt={dev:0,gyan:0,sadh:0,pool:0,jeev:0};
+  FUNDS.forEach(function(f){gt[f.group]+=acc[f.id].close;});
+
+  var fyText=fy==='all'?'All years':'FY '+fyLabel(fy);
+  el.innerHTML=
+    '<div class="panel">'+
+      '<div class="hero-total"><div><div class="muted small">Total funds in hand · '+fyText+'</div><div class="big num">'+rupee(tot.close)+'</div></div>'+
+        '<div class="num"><span class="muted small">Income</span> <strong class="pos">'+rupee(tot.income)+'</strong></div>'+
+        '<div class="num"><span class="muted small">Expense</span> <strong class="neg">'+rupee(tot.expense)+'</strong></div></div>'+
+      (pos>0?'<div class="band" role="img" aria-label="Distribution of funds across khatas">'+seg+'</div>':'<div class="empty">No funds recorded yet. Add an opening balance or an income entry to see how funds are spread across the kshetras.</div>')+
+      '<div class="legend">'+leg+'</div>'+
+    '</div>'+
+    '<div class="panel"><h2>Dravya groups</h2><div class="grid g3 num">'+
+      Object.keys(GROUPS).map(function(g){return '<div><div class="muted small">'+GROUPS[g]+'</div><div style="font-weight:700;font-size:1.1rem" class="'+(gt[g]<0?'neg':'')+'">'+rupee(gt[g])+'</div></div>';}).join('')+
+    '</div>'+
+    '<p class="small muted" style="margin:12px 0 0">Sadharan dravya = Sadhu + Sadhvi + Shravak + Shravika khatas.</p></div>'+
+    '<h2 style="margin:22px 0 10px">The seven kshetras</h2>'+
+    '<div class="grid g2">'+KSHETRAS.map(function(f){return kcardHTML(f,acc[f.id],maxAbs);}).join('')+'</div>'+
+    '<h2 style="margin:22px 0 10px">General and Jeevdaya</h2>'+
+    '<div class="grid g2">'+EXTRA.map(function(f){return kcardHTML(f,acc[f.id],maxAbs);}).join('')+'</div>'+
+    '<div class="note" style="margin-top:18px">Rules followed here: Devdravya and Gyandravya stay in their own khata, and only the Sadharan Khata can be distributed across kshetras. Practice can differ between sampradays, so confirm with your Acharya Bhagwant or trustees.</div>';
+}
+
+/* ---------- Add entry ---------- */
+function fundOptions(sel,withAll){
+  var h=withAll?'<option value="">All khatas</option>':'';
+  h+='<optgroup label="Seven kshetras">'+KSHETRAS.map(function(f){return '<option value="'+f.id+'">'+esc(f.name)+' · '+esc(f.gu)+'</option>';}).join('')+'</optgroup>';
+  h+='<optgroup label="General & Jeevdaya">'+EXTRA.map(function(f){return '<option value="'+f.id+'">'+esc(f.name)+' · '+esc(f.gu)+'</option>';}).join('')+'</optgroup>';
+  sel.innerHTML=h;
+}
+function setMode(m){
+  mode=m; overspendOK=false; hideWarn();
+  $('tInc').setAttribute('aria-pressed',m==='income'?'true':'false');
+  $('tExp').setAttribute('aria-pressed',m==='expense'?'true':'false');
+  $('btnSave').textContent=m==='income'?'Save income':'Save expense';
+  $('lblParty').textContent=m==='income'?'Donor name':'Paid to';
+  refreshHeads();
+}
+function refreshHeads(){
+  var f=$('fFund').value, list=HEADS[f][mode];
+  $('fHead').innerHTML=list.map(function(h){return '<option>'+esc(h)+'</option>';}).join('');
+  var fd=FUND[f];
+  $('fundHint').innerHTML='<strong>'+esc(fd.name)+'</strong> · '+GROUPS[fd.group]+'. '+esc(FUND_NOTE[fd.group])+' <span class="muted">Balance now: <strong class="num">'+rupee(currentBalance(f))+'</strong></span>';
+  overspendOK=false; hideWarn();
+}
+function hideWarn(){$('fWarn').classList.add('hide');$('fWarn').innerHTML='';}
+function clearForm(){
+  $('fAmt').value='';$('fParty').value='';$('fRef').value='';$('fNote').value='';$('fErr').textContent='';
+  $('fDate').value=today();$('fMode').selectedIndex=0;overspendOK=false;hideWarn();
+}
+function saveEntry(force){
+  var err=$('fErr'); err.textContent='';
+  var date=$('fDate').value, fund=$('fFund').value, head=$('fHead').value, amt=round2(parseFloat($('fAmt').value));
+  if(!date){err.textContent='Choose a date.';return;}
+  if(!(amt>0)){err.textContent='Enter an amount greater than zero.';return;}
+  if(mode==='expense' && !force){
+    var bal=currentBalance(fund);
+    if(amt>bal){
+      var f=FUND[fund], extra=(f.group==='dev'||f.group==='gyan')
+        ? 'Devdravya and Gyandravya must not be borrowed from other khatas, so this expense should wait for more income in this khata.'
+        : 'Top up this khata from the Sadharan Khata (Distribute tab) before recording the expense, or record it anyway if the trustees have approved.';
+      var w=$('fWarn'); w.classList.remove('hide');
+      w.innerHTML='<strong>'+esc(f.name)+' has only '+rupee(bal)+'.</strong> This expense of '+rupee(amt)+' would leave it at '+rupee(bal-amt)+'. '+esc(extra)+
+        '<div class="row"><button class="danger sm" id="btnForce">Record anyway</button><button class="sm" id="btnCancelWarn">Go back</button></div>';
+      $('btnForce').onclick=function(){saveEntry(true);};
+      $('btnCancelWarn').onclick=hideWarn;
+      return;
+    }
+  }
+  var key=mode==='income'?'R':'V';
+  state.seq[key]=(state.seq[key]||0)+1;
+  var e={id:uid(),type:mode,date:date,fund:fund,head:head,amount:amt,party:$('fParty').value.trim(),mode:$('fMode').value,ref:$('fRef').value.trim(),note:$('fNote').value.trim(),no:key+'-'+pad(state.seq[key])};
+  state.entries.push(e); save(); hideWarn();
+  toast((mode==='income'?'Receipt ':'Voucher ')+e.no+' saved: '+rupee(amt)+' · '+FUND[fund].name);
+  $('fAmt').value='';$('fParty').value='';$('fRef').value='';$('fNote').value='';
+  buildFY(); refreshHeads();
+}
+$('tInc').onclick=function(){setMode('income');};
+$('tExp').onclick=function(){setMode('expense');};
+$('fFund').addEventListener('change',refreshHeads);
+$('btnSave').onclick=function(){saveEntry(false);};
+$('btnClear').onclick=clearForm;
+
+/* ---------- Ledger ---------- */
+var pendingDelete=null;
+function renderLedger(){
+  var fund=$('lFund').value, type=$('lType').value, q=$('lQ').value.trim().toLowerCase();
+  var fy=selectedFY(), s=fy==='all'?'0000':fyStart(fy), en=fy==='all'?'9999':fyEnd(fy);
+  var rows=state.entries.filter(function(e){
+    if(e.date<s||e.date>en) return false;
+    if(type && e.type!==type) return false;
+    if(fund && e.fund!==fund && e.from!==fund) return false;
+    if(q){var hay=[e.head,e.party,e.note,e.ref,e.no,FUND[e.fund]&&FUND[e.fund].name,e.from&&FUND[e.from]&&FUND[e.from].name].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false;}
+    return true;
+  }).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(a.no<b.no?1:-1);});
+  var inc=0,exp=0;
+  var body=rows.map(function(e){
+    var f=FUND[e.fund], label, cls='', amt;
+    if(e.type==='transfer'){label=esc(FUND[e.from].name)+' → '+esc(f.name);amt=rupee(e.amount);}
+    else {label=esc(f.name);amt=(e.type==='income'?'+':'−')+rupee(e.amount).replace('₹','₹');cls=e.type==='income'?'pos':'neg'; if(e.type==='income')inc+=e.amount; else exp+=e.amount;}
+    var confirm=pendingDelete===e.id;
+    return '<tr><td class="num" style="white-space:nowrap">'+esc(e.date)+'</td><td>'+esc(e.no||'')+'</td>'+
+      '<td><span class="tag"><i class="dot" style="background:'+f.color+'"></i>'+label+'</span></td>'+
+      '<td>'+esc(e.head)+(e.note?'<div class="small muted">'+esc(e.note)+'</div>':'')+'</td>'+
+      '<td>'+esc(e.party)+'</td><td>'+esc(e.mode||'')+(e.ref?'<div class="small muted">'+esc(e.ref)+'</div>':'')+'</td>'+
+      '<td class="r num '+cls+'">'+amt+'</td>'+
+      '<td class="r">'+(confirm?'<button class="danger sm" data-del="'+e.id+'">Confirm delete</button>':'<button class="sm" data-del="'+e.id+'" aria-label="Delete entry '+esc(e.no||'')+'">Delete</button>')+'</td></tr>';
+  }).join('');
+  $('ledgerOut').innerHTML=rows.length?
+    '<div class="tw"><table><thead><tr><th>Date</th><th>No.</th><th>Khata</th><th>Head</th><th>Party</th><th>Mode</th><th class="r">Amount</th><th></th></tr></thead><tbody>'+body+'</tbody>'+
+    '<tfoot><tr><td colspan="6">Totals shown (excluding distributions)</td><td class="r num">+'+rupee(inc)+' / −'+rupee(exp)+'</td><td></td></tr></tfoot></table></div>':
+    '<div class="empty">No entries match. Add an entry from the Add entry tab, or change the filters and financial year.</div>';
+}
+$('ledgerOut').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-del]'); if(!b) return;
+  var id=b.dataset.del;
+  if(pendingDelete===id){
+    var target=state.entries.filter(function(e){return e.id===id;})[0];
+    if(target && target.dist){ state.entries=state.entries.filter(function(e){return e.dist!==target.dist;}); toast('Whole distribution removed'); }
+    else { state.entries=state.entries.filter(function(e){return e.id!==id;}); toast('Entry deleted'); }
+    pendingDelete=null; save(); buildFY(); render();
+  } else { pendingDelete=id; renderLedger(); }
+});
+['lFund','lType'].forEach(function(i){$(i).addEventListener('change',function(){pendingDelete=null;renderLedger();});});
+$('lQ').addEventListener('input',function(){pendingDelete=null;renderLedger();});
+
+/* ---------- Distribute ---------- */
+var dist={amount:'',pct:{},note:''};
+var DTARGETS=KSHETRAS.concat([FUND.jeevdaya]);
+function renderDistribute(){
+  var poolBal=currentBalance('sadharan');
+  var el=$('tab-distribute');
+  el.innerHTML=
+    '<div class="panel"><h2>Distribute Sadharan funds</h2>'+
+    '<p class="muted" style="margin-top:0">Move money from the Sadharan Khata into the seven kshetras (and Jeevdaya) by percentage. Devdravya and Gyandravya income is never moved out of its own khata.</p>'+
+    '<div class="note num">Sadharan Khata balance: <strong>'+rupee(poolBal)+'</strong></div>'+
+    '<div class="grid g2" style="margin-top:14px">'+
+      '<label class="f">Amount to distribute (₹)<input type="number" id="dAmt" min="0" step="0.01" inputmode="decimal" value="'+esc(dist.amount)+'"></label>'+
+      '<label class="f">Date<input type="date" id="dDate" value="'+today()+'"></label>'+
+      '<label class="f" style="grid-column:1/-1">Narration<input id="dNote" value="'+esc(dist.note)+'" placeholder="e.g. Trustee resolution, Oct 2026"></label>'+
+    '</div>'+
+    '<div class="row" style="margin:12px 0"><button id="dFull" class="sm">Use full Sadharan balance</button><button id="dEqual" class="sm">Split equally across 7 kshetras</button><button id="dClear" class="sm">Clear percentages</button></div>'+
+    '<div class="pct-grid">'+DTARGETS.map(function(f){
+      return '<div class="pct-row" style="--kc:'+f.color+'"><span class="n">'+esc(f.name)+'<br><span class="small muted">'+esc(f.gu)+'</span></span><input type="number" min="0" max="100" step="0.01" inputmode="decimal" data-pct="'+f.id+'" value="'+(dist.pct[f.id]||'')+'" aria-label="Percent for '+esc(f.name)+'"><span>%</span></div>';
+    }).join('')+'</div>'+
+    '<div id="dPreview" style="margin-top:16px"></div>'+
+    '<div class="err" id="dErr" role="alert"></div>'+
+    '<button class="primary" id="dPost">Post distribution</button></div>';
+  $('dAmt').oninput=function(){dist.amount=this.value;previewDist();};
+  $('dNote').oninput=function(){dist.note=this.value;};
+  el.querySelectorAll('[data-pct]').forEach(function(i){i.oninput=function(){dist.pct[this.dataset.pct]=this.value;previewDist();};});
+  $('dFull').onclick=function(){dist.amount=poolBal>0?String(poolBal):'';renderDistribute();};
+  $('dEqual').onclick=function(){var each=round2(100/7);var t={};KSHETRAS.forEach(function(f,i){t[f.id]=i===6?round2(100-each*6):each;});t.jeevdaya='';dist.pct=t;renderDistribute();};
+  $('dClear').onclick=function(){dist.pct={};renderDistribute();};
+  $('dPost').onclick=postDist;
+  previewDist();
+}
+function calcDist(){
+  var amt=round2(parseFloat(dist.amount)||0), lines=[], sumP=0;
+  DTARGETS.forEach(function(f){var p=parseFloat(dist.pct[f.id])||0; if(p>0){lines.push({f:f,p:p,amt:round2(amt*p/100)});sumP+=p;}});
+  sumP=round2(sumP);
+  if(lines.length && Math.abs(sumP-100)<0.011){ // push rounding remainder into the largest share
+    var sum=round2(lines.reduce(function(a,l){return a+l.amt;},0)), diff=round2(amt-sum);
+    if(diff){var big=lines.reduce(function(a,l){return l.p>a.p?l:a;});big.amt=round2(big.amt+diff);}
+  }
+  return {amt:amt,lines:lines,sumP:sumP};
+}
+function previewDist(){
+  var d=calcDist(), el=$('dPreview'); if(!el) return;
+  if(!d.lines.length){el.innerHTML='<div class="muted small">Enter percentages to preview the split.</div>';return;}
+  var ok=Math.abs(d.sumP-100)<0.011;
+  el.innerHTML='<div class="tw"><table><thead><tr><th>Kshetra</th><th class="r">Share</th><th class="r">Amount</th></tr></thead><tbody>'+
+    d.lines.map(function(l){return '<tr><td><span class="tag"><i class="dot" style="background:'+l.f.color+'"></i>'+esc(l.f.name)+'</span></td><td class="r num">'+l.p+'%</td><td class="r num">'+rupee(l.amt)+'</td></tr>';}).join('')+
+    '</tbody><tfoot><tr><td>Total</td><td class="r num '+(ok?'':'neg')+'">'+d.sumP+'%</td><td class="r num">'+rupee(d.lines.reduce(function(a,l){return a+l.amt;},0))+'</td></tr></tfoot></table></div>'+
+    (ok?'':'<div class="small neg" style="margin-top:6px">Percentages add up to '+d.sumP+'%. They must total 100%.</div>');
+}
+function postDist(){
+  var err=$('dErr'); err.textContent='';
+  var d=calcDist(), bal=currentBalance('sadharan'), date=$('dDate').value;
+  if(!(d.amt>0)){err.textContent='Enter the amount to distribute.';return;}
+  if(!d.lines.length){err.textContent='Enter a percentage for at least one kshetra.';return;}
+  if(Math.abs(d.sumP-100)>=0.011){err.textContent='Percentages must total 100%. Currently '+d.sumP+'%.';return;}
+  if(d.amt>bal){err.textContent='Only '+rupee(bal)+' is available in the Sadharan Khata. Reduce the amount or record more Sadharan income first.';return;}
+  var did=uid();
+  d.lines.forEach(function(l){
+    state.seq.T=(state.seq.T||0)+1;
+    state.entries.push({id:uid(),type:'transfer',date:date,from:'sadharan',fund:l.f.id,head:'Distribution from Sadharan Khata ('+l.p+'%)',amount:l.amt,party:'',mode:'',ref:'',note:$('dNote').value.trim(),no:'T-'+pad(state.seq.T),dist:did});
+  });
+  save(); toast('Distributed '+rupee(d.amt)+' across '+d.lines.length+' khata'+(d.lines.length>1?'s':''));
+  dist={amount:'',pct:{},note:''}; buildFY(); renderDistribute();
+}
+
+/* ---------- Reports & backup ---------- */
+function renderReports(){
+  var fy=selectedFY(), acc=compute(fy), el=$('tab-reports');
+  var fyText=fy==='all'?'All years':'FY '+fyLabel(fy);
+  var rows='', T={open:0,income:0,tin:0,expense:0,tout:0,close:0};
+  FUNDS.forEach(function(f){
+    var a=acc[f.id]; Object.keys(T).forEach(function(k){T[k]+=a[k];});
+    rows+='<tr><td><span class="tag"><i class="dot" style="background:'+f.color+'"></i>'+esc(f.name)+'</span></td><td>'+GROUPS[f.group]+'</td>'+
+      '<td class="r num">'+rupee(a.open)+'</td><td class="r num">'+rupee(a.income)+'</td><td class="r num">'+rupee(a.tin)+'</td><td class="r num">'+rupee(a.expense)+'</td><td class="r num">'+rupee(a.tout)+'</td><td class="r num"><strong class="'+(a.close<0?'neg':'')+'">'+rupee(a.close)+'</strong></td></tr>';
+  });
+  // head-wise
+  var s=fy==='all'?'0000':fyStart(fy), en=fy==='all'?'9999':fyEnd(fy);
+  var byHead={};
+  state.entries.forEach(function(e){
+    if(e.type==='transfer'||e.date<s||e.date>en) return;
+    var k=e.fund+'|'+e.type+'|'+e.head; byHead[k]=(byHead[k]||0)+e.amount;
+  });
+  var headHTML=FUNDS.map(function(f){
+    var items=Object.keys(byHead).filter(function(k){return k.indexOf(f.id+'|')===0;}).map(function(k){var p=k.split('|');return {type:p[1],head:p.slice(2).join('|'),amt:byHead[k]};});
+    if(!items.length) return '';
+    items.sort(function(a,b){return a.type===b.type?b.amt-a.amt:(a.type==='income'?-1:1);});
+    return '<h3 style="margin:18px 0 8px"><span class="tag"><i class="dot" style="background:'+f.color+'"></i>'+esc(f.name)+' <span class="gu muted small">'+esc(f.gu)+'</span></span></h3>'+
+      '<div class="tw"><table><tbody>'+items.map(function(i){return '<tr><td>'+(i.type==='income'?'Income':'Expense')+'</td><td>'+esc(i.head)+'</td><td class="r num '+(i.type==='income'?'pos':'neg')+'">'+rupee(i.amt)+'</td></tr>';}).join('')+'</tbody></table></div>';
+  }).join('');
+
+  el.innerHTML=
+    '<div class="panel"><h2>Khata summary · '+fyText+'</h2>'+
+    '<div class="tw"><table><thead><tr><th>Khata</th><th>Dravya</th><th class="r">Opening</th><th class="r">Income</th><th class="r">Dist. in</th><th class="r">Expense</th><th class="r">Dist. out</th><th class="r">Closing</th></tr></thead><tbody>'+rows+'</tbody>'+
+    '<tfoot><tr><td colspan="2">Total</td><td class="r num">'+rupee(T.open)+'</td><td class="r num">'+rupee(T.income)+'</td><td class="r num">'+rupee(T.tin)+'</td><td class="r num">'+rupee(T.expense)+'</td><td class="r num">'+rupee(T.tout)+'</td><td class="r num">'+rupee(T.close)+'</td></tr></tfoot></table></div></div>'+
+    '<div class="panel"><h2>Head-wise totals · '+fyText+'</h2>'+(headHTML||'<div class="empty">No income or expense entries in this period.</div>')+'</div>'+
+    '<div class="panel"><h2>Export and backup</h2>'+
+    '<p class="muted" style="margin-top:0">Entries are stored in this browser only. Save a backup file regularly, and use it to move the data to another device.</p>'+
+    '<div class="row"><button id="bCsv" class="primary">Download ledger (CSV)</button><button id="bJson">Download backup (JSON)</button></div>'+
+    '<h3 style="margin:20px 0 6px">Restore from backup</h3>'+
+    '<p class="small muted" style="margin:0 0 8px">Pasting a backup replaces everything currently stored here.</p>'+
+    '<textarea id="restoreText" placeholder="Paste backup JSON here"></textarea>'+
+    '<div class="row" style="margin-top:10px"><input type="file" id="restoreFile" accept=".json,application/json" style="max-width:280px"><button id="bRestore">Restore</button></div>'+
+    '<div class="err" id="rErr" role="alert"></div></div>';
+  $('bCsv').onclick=exportCSV; $('bJson').onclick=exportJSON; $('bRestore').onclick=restore;
+  $('restoreFile').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$('restoreText').value=r.result;};r.readAsText(f);};
+}
+function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportCSV(){
+  var head=['Date','No.','Type','Khata','From khata','Head','Party','Mode','Reference','Narration','Amount'];
+  var rows=state.entries.slice().sort(function(a,b){return a.date<b.date?-1:1;}).map(function(e){
+    return [e.date,e.no,e.type,FUND[e.fund].name,e.from?FUND[e.from].name:'',e.head,e.party,e.mode,e.ref,e.note,e.amount].map(csvCell).join(',');
+  });
+  saveFile('sangh-ledger-'+today()+'.csv',[head.join(',')].concat(rows).join('\n'));
+}
+function exportJSON(){saveFile('sangh-backup-'+today()+'.json',JSON.stringify(state,null,2));}
+async function saveFile(name,text){
+  try{
+    if(typeof claude!=='undefined' && claude.use){
+      var d=await claude.use('downloads');
+      if(d){await d.save({filename:name,data:text});toast('Saved '+name);return;}
+    }
+  }catch(e){ if(e&&(e.code==='declined')) return; }
+  try{ // normal website: direct browser download
+    var blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+    toast('Downloaded '+name); return;
+  }catch(e){}
+  $('dlgTitle').textContent=name;
+  $('dlgHelp').textContent='Downloads are not available in this view. Copy the text below and paste it into a file named '+name+'.';
+  $('dlgText').value=text; $('dlg').showModal(); $('dlgText').select();
+}
+$('dlgClose').onclick=function(){$('dlg').close();};
+function restore(){
+  var err=$('rErr'); err.textContent='';
+  var t=$('restoreText').value.trim(); if(!t){err.textContent='Paste a backup first.';return;}
+  try{
+    var o=JSON.parse(t);
+    if(!o||!Array.isArray(o.entries)) throw new Error('Not a Sapta Kshetra backup.');
+    o.entries=o.entries.filter(function(e){return e&&e.date&&FUND[e.fund]&&(e.type==='income'||e.type==='expense'||(e.type==='transfer'&&FUND[e.from]))&&isFinite(e.amount);});
+    o.seq=o.seq||{R:0,V:0,T:0}; o.sangh=o.sangh||''; o.fy=o.fy||'current';
+    state=o; save(); $('sanghName').value=state.sangh; buildFY(); render(); toast('Backup restored: '+o.entries.length+' entries');
+  }catch(e){err.textContent='That backup could not be read. '+e.message;}
+}
+
+/* ---------- Render ---------- */
+function render(){
+  if(currentTab==='overview') renderOverview();
+  else if(currentTab==='ledger') renderLedger();
+  else if(currentTab==='distribute') renderDistribute();
+  else if(currentTab==='reports') renderReports();
+  else if(currentTab==='add') refreshHeads();
+}
+
+/* ---------- Init ---------- */
+fundOptions($('fFund'),false); fundOptions($('lFund'),true);
+$('fDate').value=today(); $('sanghName').value=state.sangh||'';
+if(!storageOK) $('storageWarn').classList.remove('hide');
+buildFY(); setMode('income'); render();
+})();
+</script>
+</body>
+</html>
